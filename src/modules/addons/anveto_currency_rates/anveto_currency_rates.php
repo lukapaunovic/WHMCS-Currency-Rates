@@ -29,8 +29,7 @@ class Anveto_Currency_Rates {
     }
 
     function cron() {
-        $default = "";
-        $defaultrate = "";
+
         $settings = $this->getSettings();
         $apiuser = "";
         if (isset($settings['apiuser'])) {
@@ -42,24 +41,13 @@ class Anveto_Currency_Rates {
             $url = $settings['updateurl'];
         }
         $external = $this->getExternalRates($url);
-        foreach ($currencies as $c) {
-            if ($c['rate'] == 1.0) {
-                $default = $c['code'];
-            }
-        }
-        foreach ($external as $e) {
-            if ($e->code == $default) {
-                $defaultrate = $e->rate;
-                break;
-            }
-        }
 
         foreach ($currencies as $c) {
             foreach ($external as $e) {
                 if ($e->code == $c['code']) {
                     if (isset($settings[$c['code']]) && $settings[$c['code']] == "on") {
                         $code = $e->code;
-                        $value = $e->rate/$defaultrate;
+                        $value = 1/$e->rate;
                         $table = "tblcurrencies";
                         $update = array("rate"=>$value);
                         $where = array("code"=>$code);
